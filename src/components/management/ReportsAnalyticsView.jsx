@@ -10,11 +10,14 @@ import {
   CheckCircle2,
   PieChart,
   Calendar,
-  Building2
+  Building2,
+  Download,
+  FileSpreadsheet
 } from 'lucide-react';
+import { downloadCSV } from '../../utils/exportCsv';
 
 export const ReportsAnalyticsView = ({ isNoticeModalOpen, onCloseNoticeModal }) => {
-  const { notices, addNotice, deleteNotice, students, rooms, hostelSettings, addToast } = useHostel();
+  const { notices, addNotice, deleteNotice, students, rooms, feeTransactions, complaints, messInventory, incidents, visitors, hostelSettings, addToast } = useHostel();
 
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [title, setTitle] = useState('');
@@ -46,6 +49,53 @@ export const ReportsAnalyticsView = ({ isNoticeModalOpen, onCloseNoticeModal }) 
     setContent('');
   };
 
+  const handleDownloadKPIStats = () => {
+    const totalCollected = feeTransactions
+      .filter(t => t.status === 'Success')
+      .reduce((sum, t) => sum + (t.totalAmount || 0), 0);
+    const totalDues = students.reduce((sum, s) => sum + (s.dueAmount || 0), 0);
+    const openTickets = complaints.filter(c => c.status !== 'Resolved' && c.status !== 'Closed').length;
+
+    const rows = [
+      ['Overall Hostel Occupancy Rate', '92.4%', 'Across Blocks A, B, C & D'],
+      ['Total Enrolled Students', students.length, 'Active Residents'],
+      ['Total Collected Fee Revenue (INR)', totalCollected, 'Verified Receipts'],
+      ['Total Pending Student Dues (INR)', totalDues, 'Outstanding Receivables'],
+      ['Monthly Mess & Procurement Expenses (INR)', 112000, 'Vegetables, Dairy, Grains, Poultry, LPG'],
+      ['Open Maintenance Complaints', openTickets, 'Active Queue'],
+      ['Avg Complaint Resolution SLA', '3.8 hrs', '94% within 24 hours'],
+      ['Logged Disciplinary Incidents', incidents.length, 'Official Records'],
+      ...hostelSettings.blocks.map(b => [
+        `Wing Occupancy: ${b.name}`,
+        `${Math.round((b.occupiedRooms / b.totalRooms) * 100)}%`,
+        `${b.occupiedRooms} / ${b.totalRooms} Rooms Filled (${b.type})`
+      ])
+    ];
+
+    downloadCSV(
+      `Hostel_Executive_Statistics_KPIs_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Metric / Statistic Name', 'Value', 'Details & Breakdown'],
+      rows
+    );
+    addToast('Downloaded Hostel Executive Statistics & KPI Report (.csv)!', 'success', 'Statistics Downloaded');
+  };
+
+  const handleDownloadExpensesReport = () => {
+    const expenses = [
+      ['EXP-101', '2026-10-05', 'Vegetables & Produce', 32400, 'Kisan Mandi Direct', 'Paid'],
+      ['EXP-102', '2026-10-10', 'Dairy & Milk Supply', 28100, 'Amul Dairy Co', 'Paid'],
+      ['EXP-103', '2026-10-14', 'Rice, Atta & Pulses', 24500, 'Agro Retail Mart', 'Paid'],
+      ['EXP-104', '2026-10-20', 'Chicken, Eggs & Fish', 18200, 'Fresh Poultry Depot', 'Paid'],
+      ['EXP-105', '2026-10-25', 'Commercial LPG Cylinders', 8800, 'Indane Gas Agency', 'Paid']
+    ];
+    downloadCSV(
+      `Hostel_Monthly_Expenses_Report_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Expense ID', 'Date', 'Expense Category', 'Amount (INR)', 'Vendor / Supplier', 'Status'],
+      expenses
+    );
+    addToast('Downloaded Monthly Expenses Report (.csv)!', 'success', 'Expenses Downloaded');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {/* Title & Broadcast CTA */}
@@ -53,14 +103,112 @@ export const ReportsAnalyticsView = ({ isNoticeModalOpen, onCloseNoticeModal }) 
         <div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Reports, Analytics & Broadcast Engine</h2>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-            Operational performance KPIs, occupancy forecasts, and circular broadcasting
+            Operational performance KPIs, downloadable data spreadsheets, and circular broadcasting
           </p>
         </div>
 
-        <button className="btn btn-primary" onClick={() => setShowComposeModal(true)}>
-          <Send size={16} />
-          <span>+ Compose Notice Broadcast</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button className="btn btn-secondary" onClick={handleDownloadKPIStats}>
+            <Download size={16} />
+            <span>Download KPI Statistics (.csv)</span>
+          </button>
+          <button className="btn btn-primary" onClick={() => setShowComposeModal(true)}>
+            <Send size={16} />
+            <span>+ Compose Notice Broadcast</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Central Data & Statistics Export Center */}
+      <div className="card">
+        <div className="card-header-flex" style={{ marginBottom: '0.85rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <FileSpreadsheet size={18} color="var(--primary)" />
+            <div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Download Hostel Statistics & Data Reports (Excel / CSV)</h3>
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                One-click export for accounting, audits, expenses, student directories, and occupancy
+              </p>
+            </div>
+          </div>
+          <span className="badge badge-success">Excel Ready (.CSV)</span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '0.75rem' }}>
+          <button className="btn btn-secondary" style={{ justifyContent: 'flex-start' }} onClick={handleDownloadKPIStats}>
+            <Download size={14} color="var(--primary)" />
+            <span>Executive KPIs & Occupancy</span>
+          </button>
+
+          <button className="btn btn-secondary" style={{ justifyContent: 'flex-start' }} onClick={handleDownloadExpensesReport}>
+            <Download size={14} color="var(--warning)" />
+            <span>Mess & Operational Expenses</span>
+          </button>
+
+          <button
+            className="btn btn-secondary"
+            style={{ justifyContent: 'flex-start' }}
+            onClick={() => {
+              downloadCSV(
+                `Hostel_Fees_And_Dues_${new Date().toISOString().slice(0, 10)}.csv`,
+                ['Student ID', 'Name', 'Roll No', 'Room', 'Monthly Fee', 'Due Amount', 'Status', 'Last Paid Date'],
+                students.map(s => [s.id, s.name, s.rollNo, s.room, s.monthlyFee, s.dueAmount, s.feeStatus, s.lastPaidDate])
+              );
+              addToast('Downloaded Fee Collection & Dues Report (.csv)!', 'success');
+            }}
+          >
+            <Download size={14} color="var(--success)" />
+            <span>Fee Collection & Dues Ledger</span>
+          </button>
+
+          <button
+            className="btn btn-secondary"
+            style={{ justifyContent: 'flex-start' }}
+            onClick={() => {
+              downloadCSV(
+                `Hostel_Student_Records_${new Date().toISOString().slice(0, 10)}.csv`,
+                ['Student ID', 'Name', 'Roll No', 'Course', 'Year', 'Room', 'Bed', 'Phone', 'Guardian', 'Guardian Phone'],
+                students.map(s => [s.id, s.name, s.rollNo, s.course, s.year, s.room, s.bed, s.phone, s.guardianName, s.guardianPhone])
+              );
+              addToast('Downloaded Student Admission Records (.csv)!', 'success');
+            }}
+          >
+            <Download size={14} color="var(--secondary)" />
+            <span>Student Admission Records</span>
+          </button>
+
+          <button
+            className="btn btn-secondary"
+            style={{ justifyContent: 'flex-start' }}
+            onClick={() => {
+              downloadCSV(
+                `Hostel_Pantry_Inventory_${new Date().toISOString().slice(0, 10)}.csv`,
+                ['Item ID', 'Ingredient', 'Category', 'Stock Qty', 'Min Alert Qty', 'Status', 'Supplier'],
+                messInventory.map(i => [i.id, i.item, i.category, i.stockQty, i.minAlertQty, i.status, i.supplier])
+              );
+              addToast('Downloaded Mess Pantry Stock Inventory (.csv)!', 'success');
+            }}
+          >
+            <Download size={14} color="#ec4899" />
+            <span>Mess Pantry Inventory Stock</span>
+          </button>
+
+          <button
+            className="btn btn-secondary"
+            style={{ justifyContent: 'flex-start' }}
+            onClick={() => {
+              downloadCSV(
+                `Hostel_Complaints_And_Incidents_${new Date().toISOString().slice(0, 10)}.csv`,
+                ['Ticket ID', 'Student', 'Room', 'Category', 'Issue', 'Urgency', 'Assigned Staff', 'Status'],
+                complaints.map(c => [c.id, c.studentName, c.room, c.category, c.title, c.urgency, c.assignedStaffName, c.status])
+              );
+              addToast('Downloaded Maintenance Complaints Report (.csv)!', 'success');
+            }}
+          >
+            <Download size={14} color="var(--danger)" />
+            <span>Complaints & Maintenance Log</span>
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards */}

@@ -9,8 +9,10 @@ import {
   Star,
   Search,
   Filter,
-  Phone
+  Phone,
+  Download
 } from 'lucide-react';
+import { downloadCSV } from '../../utils/exportCsv';
 
 export const ComplaintResolutionView = () => {
   const { complaints, updateComplaint, staffList, addToast } = useHostel();
@@ -49,14 +51,42 @@ export const ComplaintResolutionView = () => {
     setActiveTicket(null);
   };
 
+  const handleExportComplaintsCSV = () => {
+    downloadCSV(
+      `Hostel_Maintenance_Complaints_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Ticket ID', 'Student Name', 'Room', 'Category', 'Title', 'Urgency', 'Assigned Staff', 'Status', 'Reported At', 'Technician Notes', 'Student Rating'],
+      complaints.map(c => [
+        c.id,
+        c.studentName,
+        c.room,
+        c.category,
+        c.title,
+        c.urgency,
+        c.assignedStaffName,
+        c.status,
+        c.reportedAt,
+        c.technicianNotes,
+        c.rating || 'Pending'
+      ])
+    );
+    addToast('Downloaded Maintenance Complaints CSV!', 'success', 'Tickets Exported');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {/* Title */}
-      <div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Complaint Assignment & Resolution Queue</h2>
-        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-          Maintenance tickets triage, technician dispatch, SLA tracking and resolution closure
-        </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Complaint Assignment & Resolution Queue</h2>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+            Maintenance tickets triage, technician dispatch, SLA tracking and resolution closure
+          </p>
+        </div>
+
+        <button className="btn btn-secondary btn-sm" onClick={handleExportComplaintsCSV}>
+          <Download size={14} />
+          <span>Download Complaints CSV</span>
+        </button>
       </div>
 
       {/* Filter and Search Bar */}

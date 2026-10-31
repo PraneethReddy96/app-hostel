@@ -9,8 +9,10 @@ import {
   Edit2,
   Plus,
   RefreshCw,
-  ShoppingBag
+  ShoppingBag,
+  Download
 } from 'lucide-react';
+import { downloadCSV } from '../../utils/exportCsv';
 
 export const MessInventoryView = () => {
   const { messMenu, messInventory, updateDayMenu, updateInventoryStock, addToast } = useHostel();
@@ -44,14 +46,69 @@ export const MessInventoryView = () => {
     addToast(`Restock PO issued for ${itemName}. Stock restored to optimal.`, 'success', 'Inventory Restocked');
   };
 
+  const messExpensesList = [
+    { id: 'EXP-101', date: '2026-10-05', title: 'Vegetables & Produce', amount: 32400, vendor: 'Kisan Mandi Direct', status: 'Paid' },
+    { id: 'EXP-102', date: '2026-10-10', title: 'Dairy & Milk Supply', amount: 28100, vendor: 'Amul Dairy Co', status: 'Paid' },
+    { id: 'EXP-103', date: '2026-10-14', title: 'Rice, Atta & Pulses', amount: 24500, vendor: 'Agro Retail Mart', status: 'Paid' },
+    { id: 'EXP-104', date: '2026-10-20', title: 'Chicken, Eggs & Fish', amount: 18200, vendor: 'Fresh Poultry Depot', status: 'Paid' },
+    { id: 'EXP-105', date: '2026-10-25', title: 'Commercial LPG Cylinders', amount: 8800, vendor: 'Indane Gas Agency', status: 'Paid' }
+  ];
+
+  const handleDownloadInventoryCSV = () => {
+    downloadCSV(
+      `Mess_Pantry_Inventory_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['SKU ID', 'Ingredient / Item', 'Category', 'Current Stock', 'Min Alert Qty', 'Status', 'Supplier / Vendor', 'Last Purchased'],
+      messInventory.map(i => [
+        i.id,
+        i.item,
+        i.category,
+        i.stockQty,
+        i.minAlertQty,
+        i.status,
+        i.supplier,
+        i.lastPurchased
+      ])
+    );
+    addToast('Downloaded Mess Pantry Inventory CSV!', 'success', 'Inventory Exported');
+  };
+
+  const handleDownloadExpensesCSV = () => {
+    downloadCSV(
+      `Mess_Expenses_Ledger_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Expense ID', 'Date', 'Expense Category', 'Amount (INR)', 'Supplier / Vendor', 'Payment Status'],
+      messExpensesList.map(e => [
+        e.id,
+        e.date,
+        e.title,
+        e.amount,
+        e.vendor,
+        e.status
+      ])
+    );
+    addToast('Downloaded Monthly Mess Expenses Ledger CSV!', 'success', 'Expenses Exported');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {/* Title */}
-      <div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Mess Menu, Expenses & Inventory</h2>
-        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-          Weekly dining schedule editor, pantry warehouse stock alerts, and procurement ledgers
-        </p>
+      {/* Title & Export Buttons */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Mess Menu, Expenses & Inventory</h2>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+            Weekly dining schedule editor, pantry warehouse stock alerts, and procurement ledgers
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button className="btn btn-secondary btn-sm" onClick={handleDownloadInventoryCSV}>
+            <Download size={14} />
+            <span>Download Inventory CSV</span>
+          </button>
+          <button className="btn btn-secondary btn-sm" onClick={handleDownloadExpensesCSV}>
+            <Download size={14} />
+            <span>Download Expenses CSV</span>
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -284,18 +341,18 @@ export const MessInventoryView = () => {
       {activeTab === 'expenses' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div className="card">
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.8rem' }}>
-              Mess Procurement & Expenses Breakdown (October 2026)
-            </h3>
+            <div className="card-header-flex" style={{ marginBottom: '0.8rem' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>
+                Mess Procurement & Expenses Breakdown (October 2026)
+              </h3>
+              <button className="btn btn-primary btn-sm" onClick={handleDownloadExpensesCSV}>
+                <Download size={14} />
+                <span>Export Expenses Sheet (.csv)</span>
+              </button>
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-              {[
-                { title: 'Vegetables & Produce', amount: '₹ 32,400', vendor: 'Kisan Mandi Direct' },
-                { title: 'Dairy & Milk Supply', amount: '₹ 28,100', vendor: 'Amul Dairy Co' },
-                { title: 'Rice, Atta & Pulses', amount: '₹ 24,500', vendor: 'Agro Retail Mart' },
-                { title: 'Chicken, Eggs & Fish', amount: '₹ 18,200', vendor: 'Fresh Poultry Depot' },
-                { title: 'Commercial LPG Cylinders', amount: '₹ 8,800', vendor: 'Indane Gas Agency' }
-              ].map((exp, idx) => (
+              {messExpensesList.map((exp, idx) => (
                 <div
                   key={idx}
                   style={{
@@ -306,7 +363,7 @@ export const MessInventoryView = () => {
                   }}
                 >
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{exp.title}</div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 800, margin: '2px 0' }}>{exp.amount}</div>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 800, margin: '2px 0' }}>₹ {exp.amount.toLocaleString()}</div>
                   <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>Vendor: {exp.vendor}</div>
                 </div>
               ))}

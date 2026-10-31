@@ -12,8 +12,10 @@ import {
   XCircle,
   FileCheck2,
   Lock,
-  DoorOpen
+  DoorOpen,
+  Download
 } from 'lucide-react';
+import { downloadCSV } from '../../utils/exportCsv';
 
 export const StaffSecurityView = () => {
   const { staffList, visitors, outpasses, updateOutpassStatus, addVisitor, checkOutVisitor, addToast } = useHostel();
@@ -47,14 +49,66 @@ export const StaffSecurityView = () => {
     setVisitorPhone('');
   };
 
+  const handleExportStaffCSV = () => {
+    downloadCSV(
+      `Hostel_Staff_Directory_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Staff ID', 'Name', 'Role', 'Department', 'Shift Timings', 'Phone', 'Email', 'Current Status'],
+      staffList.map(stf => [
+        stf.id,
+        stf.name,
+        stf.role,
+        stf.department,
+        stf.shift,
+        stf.phone,
+        stf.email,
+        stf.status
+      ])
+    );
+    addToast('Downloaded Staff & Wardens Directory CSV!', 'success', 'Staff Exported');
+  };
+
+  const handleExportVisitorsCSV = () => {
+    downloadCSV(
+      `Hostel_Gate_Visitors_Log_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Visitor ID', 'Visitor Name', 'Relation', 'Student Visited', 'Room', 'Phone', 'ID Proof', 'Check-In Time', 'Check-Out Time', 'Status', 'Purpose'],
+      visitors.map(v => [
+        v.id,
+        v.visitorName,
+        v.relation,
+        v.studentName,
+        v.studentRoom,
+        v.phone,
+        v.idProof,
+        v.checkInTime,
+        v.checkOutTime,
+        v.status,
+        v.purpose
+      ])
+    );
+    addToast('Downloaded Gate Security Visitor Logs CSV!', 'success', 'Visitor Logs Exported');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {/* Title */}
-      <div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Staff, Warden & Security Management</h2>
-        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-          Campus security personnel shifts, warden directory, and main gate security logs
-        </p>
+      {/* Title & Export Buttons */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Staff, Warden & Security Management</h2>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+            Campus security personnel shifts, warden directory, and main gate security logs
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button className="btn btn-secondary btn-sm" onClick={handleExportStaffCSV}>
+            <Download size={14} />
+            <span>Download Staff CSV</span>
+          </button>
+          <button className="btn btn-secondary btn-sm" onClick={handleExportVisitorsCSV}>
+            <Download size={14} />
+            <span>Download Visitors CSV</span>
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useHostel } from '../../context/HostelContext';
-import { BedDouble } from 'lucide-react';
+import { BedDouble, Download } from 'lucide-react';
+import { downloadCSV } from '../../utils/exportCsv';
 
 export const RoomBedAllocationView = () => {
-  const { rooms, students, allocateBed, vacateBed } = useHostel();
+  const { rooms, students, allocateBed, vacateBed, addToast } = useHostel();
 
   const [filterBlock, setFilterBlock] = useState('All');
   const [filterFloor, setFilterFloor] = useState('All');
@@ -39,6 +40,31 @@ export const RoomBedAllocationView = () => {
     }
   };
 
+  const handleExportRoomsCSV = () => {
+    const rows = [];
+    rooms.forEach(r => {
+      (r.beds || []).forEach(b => {
+        rows.push([
+          r.roomNumber,
+          r.block,
+          r.floor,
+          r.type,
+          r.ratePerMonth,
+          b.bedId,
+          b.status,
+          b.studentName || 'Vacant',
+          b.studentId || '-'
+        ]);
+      });
+    });
+    downloadCSV(
+      `Hostel_Room_Bed_Occupancy_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Room No', 'Wing / Block', 'Floor', 'Room Type', 'Monthly Rent (INR)', 'Bed ID', 'Occupancy Status', 'Allocated Student', 'Student ID'],
+      rows
+    );
+    addToast('Downloaded Room & Bed Occupancy Matrix CSV!', 'success', 'Occupancy Exported');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {/* Header */}
@@ -50,8 +76,8 @@ export const RoomBedAllocationView = () => {
           </p>
         </div>
 
-        {/* Legend */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.75rem' }}>
+        {/* Legend & Export */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.75rem', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary)' }} />
             <span>Occupied Bed</span>
@@ -64,6 +90,10 @@ export const RoomBedAllocationView = () => {
             <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--warning)' }} />
             <span>Under Maintenance</span>
           </div>
+          <button className="btn btn-secondary btn-sm" onClick={handleExportRoomsCSV}>
+            <Download size={14} />
+            <span>Download Rooms CSV</span>
+          </button>
         </div>
       </div>
 

@@ -7,6 +7,7 @@ import {
   Plus,
   Search
 } from 'lucide-react';
+import { downloadCSV } from '../../utils/exportCsv';
 
 export const FeeManagementView = ({ isFeeModalOpen, onCloseFeeModal }) => {
   const { students, feeTransactions, recordStudentPayment, addToast } = useHostel();
@@ -61,7 +62,42 @@ export const FeeManagementView = ({ isFeeModalOpen, onCloseFeeModal }) => {
   };
 
   const handleExportCSV = () => {
-    addToast("Exporting fee reconciliation ledger (October_2026_Fees.csv)...", "info", "Report Exported");
+    downloadCSV(
+      `Hostel_Fees_Dues_Ledger_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Student ID', 'Student Name', 'Roll No', 'Block', 'Room', 'Monthly Fee (INR)', 'Outstanding Dues (INR)', 'Fee Status', 'Last Paid Date'],
+      students.map(s => [
+        s.id,
+        s.name,
+        s.rollNo,
+        s.block,
+        s.room,
+        s.monthlyFee,
+        s.dueAmount,
+        s.feeStatus,
+        s.lastPaidDate
+      ])
+    );
+    addToast("Downloaded Fee & Dues Ledger CSV spreadsheet!", "success", "CSV Exported");
+  };
+
+  const handleExportTransactionsCSV = () => {
+    downloadCSV(
+      `Hostel_Payment_Receipts_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Transaction ID', 'Student ID', 'Student Name', 'Room', 'Billing Month', 'Amount Paid (INR)', 'Payment Mode', 'Reference No', 'Payment Date', 'Status'],
+      feeTransactions.map(t => [
+        t.id,
+        t.studentId,
+        t.studentName,
+        t.room,
+        t.month,
+        t.totalAmount,
+        t.paymentMode,
+        t.transactionRef,
+        t.paymentDate,
+        t.status
+      ])
+    );
+    addToast("Downloaded Payment Receipts History CSV!", "success", "Receipts Exported");
   };
 
   return (
@@ -75,10 +111,14 @@ export const FeeManagementView = ({ isFeeModalOpen, onCloseFeeModal }) => {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button className="btn btn-secondary btn-sm" onClick={handleExportCSV}>
             <Download size={14} />
-            <span>Export CSV</span>
+            <span>Download Dues CSV</span>
+          </button>
+          <button className="btn btn-secondary btn-sm" onClick={handleExportTransactionsCSV}>
+            <Download size={14} />
+            <span>Download Receipts CSV</span>
           </button>
           <button className="btn btn-secondary btn-sm" onClick={handleSendReminders}>
             <Send size={14} color="var(--warning)" />

@@ -8,8 +8,10 @@ import {
   User,
   Calendar,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Download
 } from 'lucide-react';
+import { downloadCSV } from '../../utils/exportCsv';
 
 export const IncidentReportsView = () => {
   const { incidents, addIncident, students, addToast } = useHostel();
@@ -45,6 +47,26 @@ export const IncidentReportsView = () => {
     setActionTaken('');
   };
 
+  const handleExportIncidentsCSV = () => {
+    downloadCSV(
+      `Hostel_Incident_Reports_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Incident ID', 'Date & Time', 'Category', 'Severity', 'Involved Student', 'Location / Room', 'Reported By', 'Description', 'Action Taken', 'Status'],
+      incidents.map(inc => [
+        inc.id,
+        inc.date,
+        inc.category,
+        inc.severity,
+        inc.involvedStudent,
+        inc.room,
+        inc.reportedBy,
+        inc.description,
+        inc.actionTaken,
+        inc.status
+      ])
+    );
+    addToast('Downloaded Incident & Disciplinary Reports CSV!', 'success', 'Incidents Exported');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {/* Title */}
@@ -56,10 +78,16 @@ export const IncidentReportsView = () => {
           </p>
         </div>
 
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          <Plus size={16} />
-          <span>+ Log Incident Report</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button className="btn btn-secondary" onClick={handleExportIncidentsCSV}>
+            <Download size={16} />
+            <span>Download Incidents CSV</span>
+          </button>
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+            <Plus size={16} />
+            <span>+ Log Incident Report</span>
+          </button>
+        </div>
       </div>
 
       {/* Incidents Cards / Table */}

@@ -13,8 +13,10 @@ import {
   FileCheck,
   Phone,
   Mail,
-  MapPin
+  MapPin,
+  Download
 } from 'lucide-react';
+import { downloadCSV } from '../../utils/exportCsv';
 
 export const StudentAdmissionView = ({ isAdmissionModalOpen, onCloseAdmissionModal }) => {
   const { students, rooms, addStudent, updateStudent, addToast } = useHostel();
@@ -86,6 +88,35 @@ export const StudentAdmissionView = ({ isAdmissionModalOpen, onCloseAdmissionMod
     });
   };
 
+  const handleExportStudentsCSV = () => {
+    downloadCSV(
+      `Hostel_Students_Directory_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Student ID', 'Full Name', 'Roll Number', 'Gender', 'Course', 'Year', 'Block', 'Room', 'Bed', 'Phone', 'Email', 'Guardian Name', 'Guardian Phone', 'Blood Group', 'DOB', 'Address', 'KYC Status', 'Fee Status', 'Due Amount'],
+      students.map(s => [
+        s.id,
+        s.name,
+        s.rollNo,
+        s.gender,
+        s.course,
+        s.year,
+        s.block,
+        s.room,
+        s.bed,
+        s.phone,
+        s.email,
+        s.guardianName,
+        s.guardianPhone,
+        s.bloodGroup,
+        s.dob,
+        s.address,
+        s.kycStatus,
+        s.feeStatus,
+        s.dueAmount
+      ])
+    );
+    addToast('Downloaded Student Admission & Records CSV!', 'success', 'Records Exported');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {/* Top Bar with Search & Admission Button */}
@@ -97,10 +128,16 @@ export const StudentAdmissionView = ({ isAdmissionModalOpen, onCloseAdmissionMod
           </p>
         </div>
 
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          <UserPlus size={16} />
-          <span>+ New Student Admission</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button className="btn btn-secondary" onClick={handleExportStudentsCSV}>
+            <Download size={16} />
+            <span>Download Students CSV</span>
+          </button>
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+            <UserPlus size={16} />
+            <span>+ New Student Admission</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
