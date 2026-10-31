@@ -3,10 +3,19 @@ import { useHostel } from '../../context/HostelContext';
 import { Wifi, Battery, Signal } from 'lucide-react';
 
 export const DeviceFrame = ({ children }) => {
-  const { deviceMode, portalMode } = useHostel();
+  const { deviceMode } = useHostel();
+  const [isRealMobileScreen, setIsRealMobileScreen] = React.useState(
+    typeof window !== 'undefined' ? window.innerWidth <= 640 : false
+  );
 
-  // If in mobile mockup frame mode
-  if (deviceMode === 'mobile_preview') {
+  React.useEffect(() => {
+    const onResize = () => setIsRealMobileScreen(window.innerWidth <= 640);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // Only show the decorative phone mockup frame when viewing on a desktop/laptop screen (>640px)
+  if (deviceMode === 'mobile_preview' && !isRealMobileScreen) {
     return (
       <div className="device-container-wrapper mode-mobile">
         <div className="mobile-mockup-frame">

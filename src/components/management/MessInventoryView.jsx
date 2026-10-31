@@ -262,7 +262,7 @@ export const MessInventoryView = () => {
             ))}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.25rem' }}>
+          <div className="responsive-grid-2">
             {/* Current Day Schedule */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {['breakfast', 'lunch', 'snacks', 'dinner'].map(mKey => {

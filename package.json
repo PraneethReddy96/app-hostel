@@ -10,6 +10,7 @@
     "dev:management": "vite --config management-app/vite.config.js",
     "build:student": "vite build --config student-app/vite.config.js",
     "build:management": "vite build --config management-app/vite.config.js",
+    "test:e2e": "node server/e2e-test.js",
     "lint": "oxlint"
   },
   "dependencies": {

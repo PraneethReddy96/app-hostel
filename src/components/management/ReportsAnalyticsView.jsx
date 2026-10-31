@@ -239,7 +239,7 @@ export const ReportsAnalyticsView = ({ isNoticeModalOpen, onCloseNoticeModal }) 
       </div>
 
       {/* Wing Breakdown & Broadcasts Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '1.25rem' }}>
+      <div className="responsive-grid-2">
         {/* Hostel Wing Capacity Progress Bars */}
         <div className="card">
           <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.85rem' }}>

@@ -119,7 +119,7 @@ export const AdminDashboard = ({ onNavigateNav, onOpenAdmissionModal, onOpenFeeM
       </div>
 
       {/* Collection Overview Bar Chart & Quick Actions Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.25rem' }}>
+      <div className="responsive-grid-2">
         {/* Chart Card (Matching PDF) */}
         <div className="chart-card-container">
           <div className="card-header-flex">
@@ -195,7 +195,7 @@ export const AdminDashboard = ({ onNavigateNav, onOpenAdmissionModal, onOpenFeeM
       </div>
 
       {/* Two Column Table Row: Recent Admissions & Open Complaints */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.25rem' }}>
+      <div className="responsive-grid-2">
         {/* Recent Student Admissions */}
         <div className="card">
           <div className="card-header-flex">
