@@ -24,9 +24,7 @@ export const HostelProvider = ({ children, appRole = 'student' }) => {
   // Determine portal mode strictly from the standalone app role
   const [portalMode, setPortalMode] = useState(appRole);
 
-  const [deviceMode, setDeviceMode] = useState(() => {
-    return localStorage.getItem(`joystay_device_mode_${appRole}`) || (appRole === 'student' ? 'mobile_preview' : 'responsive');
-  });
+  const [deviceMode, setDeviceMode] = useState('responsive');
 
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem(`joystay_theme_${appRole}`) || 'dark';

@@ -440,12 +440,12 @@ a {
 
 /* Student Main Container */
 .student-content {
-  padding: 1.25rem;
-  max-width: 1200px;
+  padding: 1.5rem 1.25rem calc(5.25rem + env(safe-area-inset-bottom, 0px));
+  max-width: 960px;
   margin: 0 auto;
 }
 
-/* Mobile Bottom Navigation Bar */
+/* Native Responsive Bottom Navigation Bar (Laptop, Android, iPhone) */
 .student-bottom-nav {
   position: fixed;
   bottom: 0;
@@ -459,17 +459,7 @@ a {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 0.5rem 0.25rem 0.6rem;
-}
-
-.mode-mobile .student-bottom-nav {
-  position: absolute;
-  max-width: 410px;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  border-bottom-left-radius: 36px;
-  border-bottom-right-radius: 36px;
+  padding: 0.5rem 0.5rem calc(0.6rem + env(safe-area-inset-bottom, 0px));
 }
 
 .nav-tab-item {
@@ -1274,17 +1264,24 @@ a {
 }
 
 @media (max-width: 640px) {
+  .student-header {
+    padding: 0.85rem 0.9rem 0.75rem;
+  }
   .student-content {
-    padding: 0.85rem 0.75rem 5rem;
+    padding: 0.9rem 0.75rem calc(5rem + env(safe-area-inset-bottom, 0px));
   }
   .student-bottom-nav {
     overflow-x: auto;
-    justify-content: flex-start;
-    gap: 0.15rem;
+    justify-content: space-between;
+    gap: 0.1rem;
+    padding: 0.45rem 0.25rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
   }
   .nav-tab-item {
-    min-width: 56px;
+    min-width: 52px;
+    flex: 1;
     flex-shrink: 0;
+    padding: 0.25rem 0.2rem;
+    font-size: 0.64rem;
   }
   .modal-dialog {
     max-height: 94vh;
@@ -1296,6 +1293,9 @@ a {
 }
 
 @media (max-width: 480px) {
+  .user-pill-badge {
+    display: none !important;
+  }
   .metrics-grid-4 {
     grid-template-columns: 1fr;
   }
