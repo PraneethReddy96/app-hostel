@@ -18,7 +18,7 @@ import {
 
 const HostelContext = createContext();
 
-const API_BASE = import.meta.env.VITE_API_URL || `http://${window.location.hostname || 'localhost'}:4000`;
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export const HostelProvider = ({ children, appRole = 'student' }) => {
   // Determine portal mode strictly from the standalone app role

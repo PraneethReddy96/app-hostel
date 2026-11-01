@@ -95,7 +95,9 @@
 }
 
 /* Global Reset & Base */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -112,14 +114,22 @@ body {
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
   font-weight: 700;
   color: var(--text-main);
   letter-spacing: -0.02em;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font-family: inherit;
 }
 
@@ -133,13 +143,16 @@ a {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--border-color);
   border-radius: var(--radius-full);
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
@@ -318,6 +331,7 @@ a {
   background: #1e293b;
   border-radius: 50%;
 }
+
 .notch-sensor {
   width: 6px;
   height: 6px;
@@ -433,9 +447,19 @@ a {
 }
 
 @keyframes pulseSOS {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-  70% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+
+  70% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Student Main Container */
@@ -1172,12 +1196,15 @@ a {
 .toast-item.toast-success {
   border-left: 4px solid var(--success);
 }
+
 .toast-item.toast-warning {
   border-left: 4px solid var(--warning);
 }
+
 .toast-item.toast-danger {
   border-left: 4px solid var(--danger);
 }
+
 .toast-item.toast-info {
   border-left: 4px solid var(--primary);
 }
@@ -1195,18 +1222,37 @@ a {
 
 /* Keyframes */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(40px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Responsive Two-Column Grid Helper */
@@ -1229,35 +1275,43 @@ a {
     flex-wrap: wrap;
     gap: 0.5rem;
   }
+
   .switcher-brand {
     font-size: 1rem;
     flex-wrap: wrap;
     gap: 0.4rem;
   }
+
   .admin-layout {
     flex-direction: column;
   }
+
   .admin-sidebar {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid var(--border-color);
   }
+
   .sidebar-nav {
     flex-direction: row;
     overflow-x: auto;
     padding: 0.5rem;
     white-space: nowrap;
   }
+
   .sidebar-section-title {
     display: none;
   }
+
   .admin-topbar {
     padding: 0.75rem 1rem;
     flex-wrap: wrap;
   }
+
   .admin-content-area {
     padding: 1rem;
   }
+
   .metrics-grid-4 {
     grid-template-columns: 1fr 1fr;
   }
@@ -1267,15 +1321,18 @@ a {
   .student-header {
     padding: 0.85rem 0.9rem 0.75rem;
   }
+
   .student-content {
     padding: 0.9rem 0.75rem calc(5rem + env(safe-area-inset-bottom, 0px));
   }
+
   .student-bottom-nav {
     overflow-x: auto;
     justify-content: space-between;
     gap: 0.1rem;
     padding: 0.45rem 0.25rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
   }
+
   .nav-tab-item {
     min-width: 52px;
     flex: 1;
@@ -1283,10 +1340,12 @@ a {
     padding: 0.25rem 0.2rem;
     font-size: 0.64rem;
   }
+
   .modal-dialog {
     max-height: 94vh;
     border-radius: var(--radius-lg);
   }
+
   .modal-body {
     padding: 1rem;
   }
@@ -1296,9 +1355,11 @@ a {
   .user-pill-badge {
     display: none !important;
   }
+
   .metrics-grid-4 {
     grid-template-columns: 1fr;
   }
+
   .quick-action-grid {
     grid-template-columns: repeat(2, 1fr);
   }
