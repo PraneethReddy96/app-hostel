@@ -143,9 +143,25 @@ export const HostelProvider = ({ children, appRole = 'student' }) => {
 
     connectSSE();
 
+    // Periodic background sync for serverless environments (e.g., Vercel)
+    const pollInterval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetch(`${API_BASE}/api/state`)
+          .then(r => (r.ok ? r.json() : null))
+          .then(data => {
+            if (data) {
+              applyRemoteState(data);
+              setBackendConnected(true);
+            }
+          })
+          .catch(() => {});
+      }
+    }, 3500);
+
     return () => {
       if (eventSource) eventSource.close();
       if (retryTimer) clearTimeout(retryTimer);
+      clearInterval(pollInterval);
     };
   }, []);
 
