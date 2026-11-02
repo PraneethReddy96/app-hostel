@@ -152,11 +152,11 @@ export const ManagementApp = () => {
         </nav>
 
         {/* Sidebar Footer */}
-        <div style={{ padding: '0.85rem 1rem', borderTop: '1px solid var(--border-color)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+        <div className="sidebar-footer" style={{ padding: '0.85rem 1rem', borderTop: '1px solid var(--border-color)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
           <div>Logged in as: <strong>{authUser?.name || 'Chief Warden'}</strong></div>
           <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>{authUser?.title || 'Administration'}</div>
           <div style={{ fontSize: '0.65rem', color: backendConnected ? 'var(--success)' : 'var(--warning)', marginTop: '2px' }}>
-            ● {backendConnected ? 'Shared Backend Synced (:4000)' : 'Reconnecting...'}
+            ● {backendConnected ? 'Live Database Synced' : 'Reconnecting...'}
           </div>
         </div>
       </aside>

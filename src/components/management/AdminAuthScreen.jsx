@@ -15,19 +15,19 @@ export const AdminAuthScreen = () => {
   };
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 60px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-      <div className="card" style={{ width: '100%', maxWidth: '440px', padding: '1.85rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'var(--secondary-gradient)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'white', marginBottom: '0.75rem', boxShadow: 'var(--shadow-sm)' }}>
-            <Building2 size={26} />
+    <div className="auth-screen-wrapper">
+      <div className="card auth-card" style={{ width: '100%', maxWidth: '440px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.35rem' }}>
+          <div style={{ width: '50px', height: '50px', borderRadius: '14px', background: 'var(--secondary-gradient)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'white', marginBottom: '0.65rem', boxShadow: 'var(--shadow-sm)' }}>
+            <Building2 size={25} />
           </div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>JoyStay Management ERP</h2>
+          <h2 style={{ fontSize: '1.35rem', fontWeight: 800 }}>JoyStay Management ERP</h2>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
             Administration & Control Portal • Role-Based Access
           </p>
           <div style={{ marginTop: '8px' }}>
             <span className={`badge ${backendConnected ? 'badge-success' : 'badge-warning'}`} style={{ fontSize: '0.68rem' }}>
-              {backendConnected ? '● Connected to Shared Backend API (:4000)' : '● Connecting to Shared Backend...'}
+              {backendConnected ? '● Real-Time Cloud Sync Active' : '● Connecting to Live Database...'}
             </span>
           </div>
         </div>
@@ -42,7 +42,7 @@ export const AdminAuthScreen = () => {
             >
               {staffList.map((stf) => (
                 <option key={stf.id} value={stf.id}>
-                  {stf.name} — {stf.role} ({stf.department})
+                  {stf.name} — {stf.role}
                 </option>
               ))}
             </select>

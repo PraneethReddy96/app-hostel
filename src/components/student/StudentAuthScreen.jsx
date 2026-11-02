@@ -44,20 +44,20 @@ export const StudentAuthScreen = () => {
   };
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 60px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-      <div className="card" style={{ width: '100%', maxWidth: mode === 'login' ? '430px' : '560px', padding: '1.75rem' }}>
+    <div className="auth-screen-wrapper">
+      <div className="card auth-card" style={{ width: '100%', maxWidth: mode === 'login' ? '430px' : '560px' }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'var(--primary-gradient)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'white', marginBottom: '0.75rem', boxShadow: 'var(--shadow-sm)' }}>
-            <Smartphone size={26} />
+        <div style={{ textAlign: 'center', marginBottom: '1.35rem' }}>
+          <div style={{ width: '50px', height: '50px', borderRadius: '14px', background: 'var(--primary-gradient)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'white', marginBottom: '0.65rem', boxShadow: 'var(--shadow-sm)' }}>
+            <Smartphone size={25} />
           </div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>JoyStay Student App</h2>
+          <h2 style={{ fontSize: '1.35rem', fontWeight: 800 }}>JoyStay Student App</h2>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Resident Front-End Portal • Connected to Shared Hostel Backend
+            Resident Front-End Portal • Smart Campus Living
           </p>
           <div style={{ marginTop: '8px' }}>
             <span className={`badge ${backendConnected ? 'badge-success' : 'badge-warning'}`} style={{ fontSize: '0.68rem' }}>
-              {backendConnected ? '● Connected to Shared Backend API (:4000)' : '● Connecting to Shared Backend...'}
+              {backendConnected ? '● Real-Time Cloud Sync Active' : '● Connecting to Live Database...'}
             </span>
           </div>
         </div>
@@ -111,7 +111,7 @@ export const StudentAuthScreen = () => {
               >
                 {students.map((st) => (
                   <option key={st.id} value={st.id}>
-                    {st.name} — {st.rollNo} (Room {st.room})
+                    {st.name} • Room {st.room} ({st.rollNo})
                   </option>
                 ))}
               </select>
@@ -135,7 +135,7 @@ export const StudentAuthScreen = () => {
           </form>
         ) : (
           <form onSubmit={handleRegister}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div className="auth-form-grid">
               <div className="form-group">
                 <label className="form-label">CANDIDATE FULL NAME *</label>
                 <input

@@ -625,7 +625,7 @@ export const HostelProvider = ({ children, appRole = 'student' }) => {
     );
   };
 
-  // 10. Inventory Update
+  // 10. Inventory CRUD (Add, Edit, Restock, Delete)
   const updateInventoryStock = (id, newQty, status) => {
     const nextInv = messInventory.map(item => {
       if (item.id === id) {
@@ -633,7 +633,7 @@ export const HostelProvider = ({ children, appRole = 'student' }) => {
           ...item,
           stockQty: newQty,
           status: status || item.status,
-          lastPurchased: "Today"
+          lastPurchased: new Date().toISOString().slice(0, 10)
         };
       }
       return item;
@@ -641,6 +641,50 @@ export const HostelProvider = ({ children, appRole = 'student' }) => {
     setMessInventory(nextInv);
     syncToBackend({ messInventory: nextInv });
     addToast(`Inventory stock adjusted.`, 'info');
+  };
+
+  const addInventoryItem = ({ item, category, stockQty, minAlertQty, price, status, supplier }) => {
+    const newItem = {
+      id: `INV-${String(messInventory.length + 1).padStart(2, '0')}-${Math.floor(10 + Math.random() * 89)}`,
+      item,
+      category: category || 'Grains & Rice',
+      stockQty,
+      minAlertQty: minAlertQty || '20 kg',
+      price: Number(price) || 0,
+      status: status || 'Optimal',
+      supplier: supplier || 'Local Mandi',
+      lastPurchased: new Date().toISOString().slice(0, 10)
+    };
+    const nextInv = [newItem, ...messInventory];
+    setMessInventory(nextInv);
+    syncToBackend({ messInventory: nextInv });
+    addToast(`${item} (${stockQty}) added to Mess Inventory.`, 'success', 'Inventory Added');
+    return newItem;
+  };
+
+  const updateInventoryItem = (id, updates) => {
+    const nextInv = messInventory.map(inv => {
+      if (inv.id === id) {
+        return {
+          ...inv,
+          ...updates,
+          price: updates.price !== undefined ? Number(updates.price) : inv.price,
+          lastPurchased: new Date().toISOString().slice(0, 10)
+        };
+      }
+      return inv;
+    });
+    setMessInventory(nextInv);
+    syncToBackend({ messInventory: nextInv });
+    addToast(`Updated inventory item "${updates.item || id}".`, 'success', 'Inventory Updated');
+  };
+
+  const deleteInventoryItem = (id) => {
+    const target = messInventory.find(i => i.id === id);
+    const nextInv = messInventory.filter(i => i.id !== id);
+    setMessInventory(nextInv);
+    syncToBackend({ messInventory: nextInv });
+    addToast(`Removed "${target?.item || id}" from Mess Inventory.`, 'warning', 'Inventory Deleted');
   };
 
   // 11. Incident Reporting
@@ -783,6 +827,9 @@ export const HostelProvider = ({ children, appRole = 'student' }) => {
     updateDayMenu,
     toggleSkipMeal,
     updateInventoryStock,
+    addInventoryItem,
+    updateInventoryItem,
+    deleteInventoryItem,
     addIncident,
     addVisitor,
     checkOutVisitor,

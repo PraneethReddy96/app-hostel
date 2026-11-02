@@ -9,8 +9,10 @@ lerna-debug.log*
 
 node_modules
 dist
+*/dist
 dist-ssr
 *.local
+server/cloudflared.exe
 server/data/*.sqlite-shm
 server/data/*.sqlite-wal
 server/data/backups/

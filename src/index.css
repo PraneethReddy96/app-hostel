@@ -188,16 +188,41 @@ a {
   color: white;
   padding: 0.2rem 0.6rem;
   border-radius: var(--radius-sm);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sync-text-short {
+  display: none;
 }
 
 .switcher-controls {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Auth Screen Responsive Layout */
+.auth-screen-wrapper {
+  min-height: calc(100vh - 58px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+}
+
+.auth-card {
+  padding: 1.85rem;
+}
+
+.auth-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
 }
 
 .portal-toggle-pill {
@@ -543,6 +568,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.65rem;
   margin-bottom: 1rem;
 }
 
@@ -1271,15 +1298,16 @@ a {
 
 @media (max-width: 860px) {
   .app-top-switcher {
-    padding: 0.5rem 0.85rem;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    flex-wrap: nowrap;
+    gap: 0.45rem;
   }
 
   .switcher-brand {
     font-size: 1rem;
-    flex-wrap: wrap;
-    gap: 0.4rem;
+    flex-wrap: nowrap;
+    gap: 0.45rem;
+    min-width: 0;
   }
 
   .admin-layout {
@@ -1292,24 +1320,35 @@ a {
     border-bottom: 1px solid var(--border-color);
   }
 
-  .sidebar-nav {
-    flex-direction: row;
-    overflow-x: auto;
-    padding: 0.5rem;
-    white-space: nowrap;
-  }
-
+  .sidebar-header,
+  .sidebar-footer,
   .sidebar-section-title {
     display: none;
   }
 
+  .sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0.45rem 0.65rem;
+    white-space: nowrap;
+    gap: 0.4rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar-link {
+    flex-shrink: 0;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.76rem;
+    gap: 0.45rem;
+  }
+
   .admin-topbar {
-    padding: 0.75rem 1rem;
+    padding: 0.65rem 0.9rem;
     flex-wrap: wrap;
   }
 
   .admin-content-area {
-    padding: 1rem;
+    padding: 0.9rem;
   }
 
   .metrics-grid-4 {
@@ -1318,6 +1357,42 @@ a {
 }
 
 @media (max-width: 640px) {
+  .brand-badge {
+    font-size: 0.62rem;
+    padding: 0.16rem 0.45rem;
+  }
+
+  .sync-status-pill {
+    padding: 0.16rem 0.45rem;
+    font-size: 0.62rem !important;
+  }
+
+  .sync-text-full {
+    display: none;
+  }
+
+  .sync-text-short {
+    display: inline;
+  }
+
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .auth-screen-wrapper {
+    align-items: flex-start;
+    padding: 1.15rem 0.85rem 2rem;
+  }
+
+  .auth-card {
+    padding: 1.35rem 1.1rem;
+  }
+
+  .auth-form-grid {
+    grid-template-columns: 1fr;
+  }
+
   .student-header {
     padding: 0.85rem 0.9rem 0.75rem;
   }
@@ -1341,6 +1416,13 @@ a {
     font-size: 0.64rem;
   }
 
+  .modern-table th,
+  .modern-table td {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.76rem;
+    white-space: nowrap;
+  }
+
   .modal-dialog {
     max-height: 94vh;
     border-radius: var(--radius-lg);
@@ -1349,6 +1431,13 @@ a {
   .modal-body {
     padding: 1rem;
   }
+
+  .toast-container {
+    left: 12px;
+    right: 12px;
+    bottom: 74px;
+    max-width: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1356,8 +1445,13 @@ a {
     display: none !important;
   }
 
+  .admin-topbar-actions {
+    display: none;
+  }
+
   .metrics-grid-4 {
     grid-template-columns: 1fr;
+    gap: 0.85rem;
   }
 
   .quick-action-grid {

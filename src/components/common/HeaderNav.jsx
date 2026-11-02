@@ -37,12 +37,13 @@ export const HeaderNav = () => {
 
         {/* Live Backend Sync Indicator */}
         <span
-          className={`badge ${backendConnected ? 'badge-success' : 'badge-warning'}`}
-          style={{ fontSize: '0.68rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-          title="Real-time connection to Shared Hostel Database (:4000)"
+          className={`badge sync-status-pill ${backendConnected ? 'badge-success' : 'badge-warning'}`}
+          style={{ fontSize: '0.68rem', display: 'inline-flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
+          title="Real-time connection to Shared Hostel Database"
         >
           {backendConnected ? <Wifi size={11} /> : <WifiOff size={11} />}
-          <span className="sync-text-label">{backendConnected ? 'Live Synced' : 'Offline'}</span>
+          <span className="sync-text-full">{backendConnected ? 'Live Synced' : 'Offline'}</span>
+          <span className="sync-text-short">{backendConnected ? 'Live' : 'Offline'}</span>
         </span>
       </div>
 

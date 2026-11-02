@@ -1,14 +1,33 @@
 import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-function createTunnel(name, port) {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const binPath = path.join(__dirname, 'cloudflared.exe');
+
+async function ensureCloudflared() {
+  if (fs.existsSync(binPath) && fs.statSync(binPath).size > 10_000_000) {
+    return binPath;
+  }
+  console.log('⬇️  Downloading official Cloudflare Tunnel binary (one-time setup)...');
+  const res = await fetch('https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe');
+  if (!res.ok) {
+    throw new Error(`Failed to download cloudflared: ${res.status}`);
+  }
+  const buffer = Buffer.from(await res.arrayBuffer());
+  fs.writeFileSync(binPath, buffer);
+  console.log('✅ Cloudflare Tunnel binary ready.\n');
+  return binPath;
+}
+
+function createCloudflareTunnel(exe, name, port) {
   return new Promise((resolve) => {
-    const ssh = spawn('ssh', [
-      '-T',
-      '-o', 'StrictHostKeyChecking=no',
-      '-o', 'UserKnownHostsFile=/dev/null',
-      '-o', 'ServerAliveInterval=30',
-      '-R', `80:localhost:${port}`,
-      'nokey@localhost.run'
+    const child = spawn(exe, [
+      'tunnel',
+      '--url', `http://127.0.0.1:${port}`,
+      '--no-autoupdate'
     ], {
       stdio: ['ignore', 'pipe', 'pipe']
     });
@@ -16,33 +35,35 @@ function createTunnel(name, port) {
     let resolved = false;
     const handleOutput = (chunk) => {
       const text = chunk.toString();
-      const match = text.match(/https:\/\/[a-zA-Z0-9-]+\.lhr\.life/);
+      const match = text.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
       if (match && !resolved) {
         resolved = true;
-        resolve({ name, port, url: match[0], process: ssh });
+        resolve({ name, port, url: match[0], process: child });
       }
     };
 
-    ssh.stdout.on('data', handleOutput);
-    ssh.stderr.on('data', handleOutput);
+    child.stdout.on('data', handleOutput);
+    child.stderr.on('data', handleOutput);
   });
 }
 
-console.log('🌐 Creating live public HTTPS links for remote testing (Student App & Management ERP)...\n');
+const exe = await ensureCloudflared();
+console.log('🌐 Starting persistent Cloudflare HTTPS Tunnels (URLs never rotate while running)...\n');
 
 const [studentTunnel, managementTunnel] = await Promise.all([
-  createTunnel('Student App', 5173),
-  createTunnel('Management ERP', 5174)
+  createCloudflareTunnel(exe, 'Student App', 5173),
+  createCloudflareTunnel(exe, 'Management ERP', 5174)
 ]);
 
-console.log('==================================================================');
-console.log('✅ PUBLIC LIVE LINKS READY TO SHARE (Works Anywhere in the World)');
-console.log('==================================================================');
+await new Promise(r => setTimeout(r, 2500));
+
+console.log('========================================================================');
+console.log('✅ CLOUDFLARE LIVE HTTPS LINKS READY (Stable URLs — Will Not Rotate)');
+console.log('========================================================================');
 console.log(`📱 Student App Link:     ${studentTunnel.url}`);
 console.log(`🏢 Management ERP Link:  ${managementTunnel.url}`);
-console.log('==================================================================');
-console.log('💡 Both links are connected in real time to your SQLite 3 database.');
-console.log('   Keep this terminal running while your friend tests the apps.\n');
+console.log('========================================================================');
+console.log('💡 Powered by Cloudflare Global Edge. Both links stay fixed as long as');
+console.log('   this process is running and sync in real time with SQLite 3 (:4000).\n');
 
-// Keep process alive while tunnels are open
 setInterval(() => {}, 60000);

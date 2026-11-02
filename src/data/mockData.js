@@ -864,14 +864,14 @@ export const initialStaff = [
 ];
 
 export const initialMessInventory = [
-  { id: "INV-01", item: "Aromatic Basmati Rice", category: "Grains & Rice", stockQty: "180 kg", minAlertQty: "80 kg", status: "Optimal", supplier: "Agro Foods Ltd", lastPurchased: "2026-10-24" },
-  { id: "INV-02", item: "Premium Toor Dal (Lentils)", category: "Pulses", stockQty: "42 kg", minAlertQty: "50 kg", status: "Low Stock Alert", supplier: "Kisan Mandi", lastPurchased: "2026-10-18" },
-  { id: "INV-03", item: "Sunflower Cooking Oil", category: "Oils & Ghee", stockQty: "65 Litres", minAlertQty: "40 Litres", status: "Optimal", supplier: "Fortune Retail", lastPurchased: "2026-10-22" },
-  { id: "INV-04", item: "Farm Fresh Pasteurized Milk", category: "Dairy", stockQty: "50 Litres", minAlertQty: "30 Litres", status: "Daily Delivery", supplier: "Amul Direct", lastPurchased: "Today (Daily)" },
-  { id: "INV-05", item: "Malai Paneer (Fresh)", category: "Dairy", stockQty: "16 kg", minAlertQty: "12 kg", status: "Optimal", supplier: "Heritage Dairy", lastPurchased: "2026-10-28" },
-  { id: "INV-06", item: "Farm Fresh Broiler Chicken", category: "Poultry", stockQty: "28 kg", minAlertQty: "20 kg", status: "Optimal", supplier: "FreshToHome", lastPurchased: "2026-10-28" },
-  { id: "INV-07", item: "Whole Wheat Atta (Flour)", category: "Grains & Flour", stockQty: "210 kg", minAlertQty: "100 kg", status: "Optimal", supplier: "Aashirvaad Mill", lastPurchased: "2026-10-20" },
-  { id: "INV-08", item: "Assorted Spices & Masalas", category: "Condiments", stockQty: "35 kg", minAlertQty: "15 kg", status: "Optimal", supplier: "MDH & Everest", lastPurchased: "2026-10-15" }
+  { id: "INV-01", item: "Aromatic Basmati Rice", category: "Grains & Rice", stockQty: "180 kg", minAlertQty: "80 kg", price: 16200, status: "Optimal", supplier: "Agro Foods Ltd", lastPurchased: "2026-10-24" },
+  { id: "INV-02", item: "Premium Toor Dal (Lentils)", category: "Pulses", stockQty: "42 kg", minAlertQty: "50 kg", price: 5880, status: "Low Stock Alert", supplier: "Kisan Mandi", lastPurchased: "2026-10-18" },
+  { id: "INV-03", item: "Sunflower Cooking Oil", category: "Oils & Ghee", stockQty: "65 Litres", minAlertQty: "40 Litres", price: 9100, status: "Optimal", supplier: "Fortune Retail", lastPurchased: "2026-10-22" },
+  { id: "INV-04", item: "Farm Fresh Pasteurized Milk", category: "Dairy", stockQty: "50 Litres", minAlertQty: "30 Litres", price: 3200, status: "Daily Delivery", supplier: "Amul Direct", lastPurchased: "Today (Daily)" },
+  { id: "INV-05", item: "Malai Paneer (Fresh)", category: "Dairy", stockQty: "16 kg", minAlertQty: "12 kg", price: 6400, status: "Optimal", supplier: "Heritage Dairy", lastPurchased: "2026-10-28" },
+  { id: "INV-06", item: "Farm Fresh Broiler Chicken", category: "Poultry", stockQty: "28 kg", minAlertQty: "20 kg", price: 6160, status: "Optimal", supplier: "FreshToHome", lastPurchased: "2026-10-28" },
+  { id: "INV-07", item: "Whole Wheat Atta (Flour)", category: "Grains & Flour", stockQty: "210 kg", minAlertQty: "100 kg", price: 9450, status: "Optimal", supplier: "Aashirvaad Mill", lastPurchased: "2026-10-20" },
+  { id: "INV-08", item: "Assorted Spices & Masalas", category: "Condiments", stockQty: "35 kg", minAlertQty: "15 kg", price: 8750, status: "Optimal", supplier: "MDH & Everest", lastPurchased: "2026-10-15" }
 ];
 
 export const initialIncidents = [

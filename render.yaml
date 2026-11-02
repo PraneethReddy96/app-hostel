@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: joystay-hostel-system
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build:student && npm run build:management
+    startCommand: node server/index.js
+    envVars:
+      - key: NODE_VERSION
+        value: 22.14.0
