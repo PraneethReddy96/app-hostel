@@ -114,11 +114,11 @@ export const FeeManagementView = ({ isFeeModalOpen, onCloseFeeModal }) => {
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button className="btn btn-secondary btn-sm" onClick={handleExportCSV}>
             <Download size={14} />
-            <span>Download Dues CSV</span>
+            <span>Print / Save Dues PDF</span>
           </button>
           <button className="btn btn-secondary btn-sm" onClick={handleExportTransactionsCSV}>
             <Download size={14} />
-            <span>Download Receipts CSV</span>
+            <span>Print / Save Receipts PDF</span>
           </button>
           <button className="btn btn-secondary btn-sm" onClick={handleSendReminders}>
             <Send size={14} color="var(--warning)" />

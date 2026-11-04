@@ -110,7 +110,7 @@ export const ReportsAnalyticsView = ({ isNoticeModalOpen, onCloseNoticeModal }) 
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button className="btn btn-secondary" onClick={handleDownloadKPIStats}>
             <Download size={16} />
-            <span>Download KPI Statistics (.csv)</span>
+            <span>Download / Print KPI PDF</span>
           </button>
           <button className="btn btn-primary" onClick={() => setShowComposeModal(true)}>
             <Send size={16} />
@@ -125,13 +125,13 @@ export const ReportsAnalyticsView = ({ isNoticeModalOpen, onCloseNoticeModal }) 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <FileSpreadsheet size={18} color="var(--primary)" />
             <div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Download Hostel Statistics & Data Reports (Excel / CSV)</h3>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Download & Print Official Hostel Reports (PDF)</h3>
               <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                One-click export for accounting, audits, expenses, student directories, and occupancy
+                One-click A4 printable PDF reports with official hostel letterhead for audits, expenses, and records
               </p>
             </div>
           </div>
-          <span className="badge badge-success">Excel Ready (.CSV)</span>
+          <span className="badge badge-success">Print-Ready PDF</span>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '0.75rem' }}>

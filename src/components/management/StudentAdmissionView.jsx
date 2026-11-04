@@ -131,7 +131,7 @@ export const StudentAdmissionView = ({ isAdmissionModalOpen, onCloseAdmissionMod
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button className="btn btn-secondary" onClick={handleExportStudentsCSV}>
             <Download size={16} />
-            <span>Download Students CSV</span>
+            <span>Print / Save Students PDF</span>
           </button>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
             <UserPlus size={16} />

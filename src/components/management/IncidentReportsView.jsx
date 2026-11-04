@@ -81,7 +81,7 @@ export const IncidentReportsView = () => {
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button className="btn btn-secondary" onClick={handleExportIncidentsCSV}>
             <Download size={16} />
-            <span>Download Incidents CSV</span>
+            <span>Print / Save Incidents PDF</span>
           </button>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
             <Plus size={16} />

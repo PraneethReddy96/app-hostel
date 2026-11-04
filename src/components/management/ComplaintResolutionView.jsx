@@ -85,7 +85,7 @@ export const ComplaintResolutionView = () => {
 
         <button className="btn btn-secondary btn-sm" onClick={handleExportComplaintsCSV}>
           <Download size={14} />
-          <span>Download Complaints CSV</span>
+          <span>Print / Save Complaints PDF</span>
         </button>
       </div>
 

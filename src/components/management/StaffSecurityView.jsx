@@ -102,11 +102,11 @@ export const StaffSecurityView = () => {
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button className="btn btn-secondary btn-sm" onClick={handleExportStaffCSV}>
             <Download size={14} />
-            <span>Download Staff CSV</span>
+            <span>Print / Save Staff PDF</span>
           </button>
           <button className="btn btn-secondary btn-sm" onClick={handleExportVisitorsCSV}>
             <Download size={14} />
-            <span>Download Visitors CSV</span>
+            <span>Print / Save Visitors PDF</span>
           </button>
         </div>
       </div>

@@ -92,7 +92,7 @@ export const RoomBedAllocationView = () => {
           </div>
           <button className="btn btn-secondary btn-sm" onClick={handleExportRoomsCSV}>
             <Download size={14} />
-            <span>Download Rooms CSV</span>
+            <span>Print / Save Rooms PDF</span>
           </button>
         </div>
       </div>

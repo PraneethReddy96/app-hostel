@@ -263,11 +263,11 @@ export const MessInventoryView = () => {
           </button>
           <button className="btn btn-secondary btn-sm" onClick={handleDownloadInventoryCSV}>
             <Download size={14} />
-            <span>Download Inventory CSV</span>
+            <span>Print / Save Inventory PDF</span>
           </button>
           <button className="btn btn-secondary btn-sm" onClick={handleDownloadExpensesCSV}>
             <Download size={14} />
-            <span>Download Expenses CSV</span>
+            <span>Print / Save Expenses PDF</span>
           </button>
         </div>
       </div>
@@ -536,7 +536,7 @@ export const MessInventoryView = () => {
                 </button>
                 <button className="btn btn-secondary btn-sm" onClick={handleDownloadExpensesCSV}>
                   <Download size={14} />
-                  <span>Export Expenses (.csv)</span>
+                  <span>Print / Save Expenses PDF</span>
                 </button>
               </div>
             </div>
