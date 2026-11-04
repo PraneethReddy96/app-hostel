@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useHostel } from '../../context/HostelContext';
 import {
   AlertCircle,
@@ -10,11 +10,39 @@ import {
   Sparkles,
   Phone,
   CheckCircle2,
-  Clock,
   Star,
   Camera,
-  MessageSquare
+  Image as ImageIcon,
+  Trash2
 } from 'lucide-react';
+
+// Category-relevant sample photos (used only if user chooses "Use Category Sample Photo")
+const CATEGORY_SAMPLE_PHOTOS = {
+  'Plumbing': {
+    name: 'plumbing_pipe_fixture.jpg',
+    url: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=400'
+  },
+  'Electrical': {
+    name: 'electrical_switch_fixture.jpg',
+    url: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=400'
+  },
+  'Wi-Fi & Network': {
+    name: 'wifi_router_signal.jpg',
+    url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=400'
+  },
+  'Air Conditioning': {
+    name: 'ac_vent_cooling.jpg',
+    url: 'https://images.unsplash.com/photo-1631545806609-35d4ae440431?auto=format&fit=crop&q=80&w=400'
+  },
+  'Room Cleaning': {
+    name: 'room_deep_cleaning.jpg',
+    url: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80&w=400'
+  },
+  'Furniture': {
+    name: 'study_desk_carpentry.jpg',
+    url: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&q=80&w=400'
+  }
+};
 
 export const ComplaintsView = ({ isModalOpen, onCloseModal }) => {
   const { currentStudent, complaints, addComplaint, rateComplaint, addToast } = useHostel();
@@ -27,7 +55,11 @@ export const ComplaintsView = ({ isModalOpen, onCloseModal }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [urgency, setUrgency] = useState('Medium');
-  const [hasPhoto, setHasPhoto] = useState(false);
+  const [photoDataUrl, setPhotoDataUrl] = useState(null);
+  const [photoFileName, setPhotoFileName] = useState('');
+  const [isSamplePhoto, setIsSamplePhoto] = useState(false);
+
+  const fileInputRef = useRef(null);
 
   // Rating modal/state
   const [ratingTicketId, setRatingTicketId] = useState(null);
@@ -53,6 +85,69 @@ export const ComplaintsView = ({ isModalOpen, onCloseModal }) => {
     }
   };
 
+  // Update sample photo automatically if category changes while using a sample photo
+  const handleCategoryChange = (newCat) => {
+    setCategory(newCat);
+    if (isSamplePhoto) {
+      const sample = CATEGORY_SAMPLE_PHOTOS[newCat] || CATEGORY_SAMPLE_PHOTOS['Plumbing'];
+      setPhotoDataUrl(sample.url);
+      setPhotoFileName(sample.name);
+    }
+  };
+
+  // Compress & read real image captured from phone camera or gallery
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 560;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height && width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressedUrl = canvas.toDataURL('image/jpeg', 0.72);
+
+        setPhotoDataUrl(compressedUrl);
+        setPhotoFileName(file.name);
+        setIsSamplePhoto(false);
+        addToast(`Attached photo: ${file.name}`, 'success', 'Photo Ready');
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAttachCategorySample = () => {
+    const sample = CATEGORY_SAMPLE_PHOTOS[category] || CATEGORY_SAMPLE_PHOTOS['Plumbing'];
+    setPhotoDataUrl(sample.url);
+    setPhotoFileName(sample.name);
+    setIsSamplePhoto(true);
+    addToast(`Attached relevant ${category} reference photo (${sample.name}).`, 'info');
+  };
+
+  const handleClearPhoto = () => {
+    setPhotoDataUrl(null);
+    setPhotoFileName('');
+    setIsSamplePhoto(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (!title.trim() || !description.trim()) {
@@ -65,12 +160,12 @@ export const ComplaintsView = ({ isModalOpen, onCloseModal }) => {
       title,
       description,
       urgency,
-      photo: hasPhoto ? "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=300" : null
+      photo: photoDataUrl || null
     });
 
     setTitle('');
     setDescription('');
-    setHasPhoto(false);
+    handleClearPhoto();
     setShowRaiseModal(false);
     if (onCloseModal) onCloseModal();
   };
@@ -88,7 +183,7 @@ export const ComplaintsView = ({ isModalOpen, onCloseModal }) => {
         <div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Complaints & Maintenance</h2>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-            Raise repair tickets with photo evidence and track live technician dispatch
+            Raise repair tickets with camera/gallery photo evidence and track live technician dispatch
           </p>
         </div>
         <button className="btn btn-primary btn-sm" onClick={() => setShowRaiseModal(true)}>
@@ -144,7 +239,7 @@ export const ComplaintsView = ({ isModalOpen, onCloseModal }) => {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span className={`badge ${
-                    ticket.urgency === 'High' ? 'badge-danger' :
+                    ticket.urgency === 'High' || ticket.urgency === 'Emergency' ? 'badge-danger' :
                     ticket.urgency === 'Medium' ? 'badge-warning' : 'badge-primary'
                   }`}>
                     {ticket.urgency}
@@ -169,7 +264,7 @@ export const ComplaintsView = ({ isModalOpen, onCloseModal }) => {
                   <img
                     src={ticket.photo}
                     alt="Complaint Evidence"
-                    style={{ width: '100px', height: '70px', objectFit: 'cover', borderRadius: 'var(--radius-xs)', border: '1px solid var(--border-color)' }}
+                    style={{ width: '120px', height: '82px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
                   />
                 </div>
               )}
@@ -252,13 +347,13 @@ export const ComplaintsView = ({ isModalOpen, onCloseModal }) => {
             <form onSubmit={handleFormSubmit}>
               <div className="modal-body">
                 {/* Category & Urgency */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="auth-form-grid">
                   <div className="form-group">
                     <label className="form-label">CATEGORY</label>
                     <select
                       className="form-control"
                       value={category}
-                      onChange={(e) => setCategory(e.target.value)}
+                      onChange={(e) => handleCategoryChange(e.target.value)}
                     >
                       <option value="Plumbing">Plumbing (Tap / Flush / Leak)</option>
                       <option value="Electrical">Electrical (Light / Fan / Socket)</option>
@@ -289,7 +384,7 @@ export const ComplaintsView = ({ isModalOpen, onCloseModal }) => {
                   <label className="form-label">SHORT TITLE / ISSUE SUMMARY</label>
                   <input
                     className="form-control"
-                    placeholder="e.g. Geyser water not heating in Room B-304"
+                    placeholder={`e.g. ${category === 'Room Cleaning' ? 'Full room deep cleaning requested' : 'Issue in Room ' + currentStudent.room}`}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
@@ -302,33 +397,84 @@ export const ComplaintsView = ({ isModalOpen, onCloseModal }) => {
                   <textarea
                     className="form-control"
                     rows="3"
-                    placeholder="Please specify location in the room, behavior, when it started..."
+                    placeholder="Please specify location in the room, details, or preferred timing..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     required
                   />
                 </div>
 
-                {/* Attach Photo Simulator */}
+                {/* Real Camera / File Upload + Relevant Category Photo Option */}
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">ATTACH PHOTO EVIDENCE</label>
-                  <div
-                    onClick={() => { setHasPhoto(!hasPhoto); addToast(hasPhoto ? "Photo removed." : "Photo attachment simulated!", "info"); }}
-                    style={{
-                      border: '2px dashed var(--border-color)',
-                      borderRadius: 'var(--radius-sm)',
-                      padding: '1rem',
-                      textAlign: 'center',
-                      cursor: 'pointer',
-                      background: hasPhoto ? 'var(--primary-light)' : 'transparent',
-                      transition: 'all var(--transition-fast)'
-                    }}
-                  >
-                    <Camera size={20} color={hasPhoto ? 'var(--primary)' : 'var(--text-muted)'} style={{ margin: '0 auto 4px' }} />
-                    <div style={{ fontSize: '0.78rem', fontWeight: 600, color: hasPhoto ? 'var(--primary)' : 'var(--text-secondary)' }}>
-                      {hasPhoto ? '✓ Image Attached: bathroom_tap_leak.jpg' : 'Click to simulate photo attachment'}
+                  <label className="form-label">ATTACH PHOTO EVIDENCE (CAMERA OR GALLERY)</label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    style={{ display: 'none' }}
+                  />
+
+                  {!photoDataUrl ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-block"
+                        style={{ borderStyle: 'dashed', borderWidth: '2px', padding: '0.85rem' }}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Camera size={18} color="var(--primary)" />
+                        <span>Take Photo / Upload Image from Device</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        style={{ fontSize: '0.72rem', alignSelf: 'center' }}
+                        onClick={handleAttachCategorySample}
+                      >
+                        <ImageIcon size={13} />
+                        <span>Or Attach Relevant "{category}" Sample Image</span>
+                      </button>
                     </div>
-                  </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', background: 'var(--bg-surface)', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--primary)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+                        <img
+                          src={photoDataUrl}
+                          alt="Preview"
+                          style={{ width: '58px', height: '44px', objectFit: 'cover', borderRadius: 'var(--radius-xs)', flexShrink: 0 }}
+                        />
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            ✓ {photoFileName}
+                          </div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>
+                            {isSamplePhoto ? `${category} Reference Image` : 'Captured / Uploaded from Device'}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '0.35rem', flexShrink: 0 }}>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          style={{ padding: '4px 8px', fontSize: '0.68rem' }}
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          Change
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          style={{ padding: '4px 8px', color: 'var(--danger)' }}
+                          onClick={handleClearPhoto}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

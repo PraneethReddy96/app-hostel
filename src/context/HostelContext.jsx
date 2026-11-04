@@ -42,24 +42,57 @@ export const HostelProvider = ({ children, appRole = 'student' }) => {
   });
 
   // Backend connection state
-  const [backendConnected, setBackendConnected] = useState(false);
+  const [backendConnected, setBackendConnected] = useState(true);
 
-  // Shared domain states (synced with Backend API :4000)
-  const [students, setStudents] = useState(initialStudents);
-  const [rooms, setRooms] = useState(initialRooms);
-  const [feeTransactions, setFeeTransactions] = useState(initialFeeTransactions);
-  const [messMenu, setMessMenu] = useState(initialMessMenu);
-  const [laundryOrders, setLaundryOrders] = useState(initialLaundryOrders);
-  const [complaints, setComplaints] = useState(initialComplaints);
-  const [notices, setNotices] = useState(initialNotices);
-  const [parcels, setParcels] = useState(initialParcels);
-  const [outpasses, setOutpasses] = useState(initialOutpasses);
-  const [staffList, setStaffList] = useState(initialStaff);
-  const [messInventory, setMessInventory] = useState(initialMessInventory);
-  const [incidents, setIncidents] = useState(initialIncidents);
-  const [visitors, setVisitors] = useState(initialVisitors);
-  const [hostelSettings, setHostelSettings] = useState(initialHostelSettings);
-  const [skippedMeals, setSkippedMeals] = useState({});
+  const loadCachedDomainState = () => {
+    try {
+      const raw = localStorage.getItem('joystay_shared_state_v3');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const initialCache = loadCachedDomainState();
+  const lastUpdatedAtRef = useRef(Number(initialCache?.updatedAt || 0));
+
+  // Shared domain states (synced with Backend API & local cache)
+  const [students, setStudents] = useState(initialCache?.students || initialStudents);
+  const [rooms, setRooms] = useState(initialCache?.rooms || initialRooms);
+  const [feeTransactions, setFeeTransactions] = useState(initialCache?.feeTransactions || initialFeeTransactions);
+  const [messMenu, setMessMenu] = useState(initialCache?.messMenu || initialMessMenu);
+  const [laundryOrders, setLaundryOrders] = useState(initialCache?.laundryOrders || initialLaundryOrders);
+  const [complaints, setComplaints] = useState(initialCache?.complaints || initialComplaints);
+  const [notices, setNotices] = useState(initialCache?.notices || initialNotices);
+  const [parcels, setParcels] = useState(initialCache?.parcels || initialParcels);
+  const [outpasses, setOutpasses] = useState(initialCache?.outpasses || initialOutpasses);
+  const [staffList, setStaffList] = useState(initialCache?.staffList || initialStaff);
+  const [messInventory, setMessInventory] = useState(initialCache?.messInventory || initialMessInventory);
+  const [incidents, setIncidents] = useState(initialCache?.incidents || initialIncidents);
+  const [visitors, setVisitors] = useState(initialCache?.visitors || initialVisitors);
+  const [hostelSettings, setHostelSettings] = useState(initialCache?.hostelSettings || initialHostelSettings);
+  const [skippedMeals, setSkippedMeals] = useState(initialCache?.skippedMeals || {});
+
+  const stateCacheRef = useRef({
+    updatedAt: lastUpdatedAtRef.current,
+    students: initialCache?.students || initialStudents,
+    rooms: initialCache?.rooms || initialRooms,
+    feeTransactions: initialCache?.feeTransactions || initialFeeTransactions,
+    messMenu: initialCache?.messMenu || initialMessMenu,
+    laundryOrders: initialCache?.laundryOrders || initialLaundryOrders,
+    complaints: initialCache?.complaints || initialComplaints,
+    notices: initialCache?.notices || initialNotices,
+    parcels: initialCache?.parcels || initialParcels,
+    outpasses: initialCache?.outpasses || initialOutpasses,
+    staffList: initialCache?.staffList || initialStaff,
+    messInventory: initialCache?.messInventory || initialMessInventory,
+    incidents: initialCache?.incidents || initialIncidents,
+    visitors: initialCache?.visitors || initialVisitors,
+    hostelSettings: initialCache?.hostelSettings || initialHostelSettings,
+    skippedMeals: initialCache?.skippedMeals || {}
+  });
+
+  const broadcastChannelRef = useRef(null);
 
   // Toast notification state
   const [toasts, setToasts] = useState([]);
@@ -76,9 +109,37 @@ export const HostelProvider = ({ children, appRole = 'student' }) => {
     setToasts(prev => prev.filter(t => t.id !== id));
   };
 
-  // Apply incoming shared state from Backend API
-  const applyRemoteState = (data) => {
+  // Apply incoming shared state from Backend API only if it is not stale
+  const applyRemoteState = (data, forceApply = false) => {
     if (!data) return;
+    const remoteTime = Number(data.updatedAt || 0);
+
+    // Prevent cold/stale serverless containers from overwriting newer local actions
+    if (!forceApply && lastUpdatedAtRef.current > 0 && remoteTime < lastUpdatedAtRef.current) {
+      // Heal the stale serverless container with our newer state
+      fetch(`${API_BASE}/api/state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(stateCacheRef.current)
+      }).catch(() => {});
+      return;
+    }
+
+    if (!forceApply && lastUpdatedAtRef.current > 0 && remoteTime === lastUpdatedAtRef.current) {
+      return;
+    }
+
+    lastUpdatedAtRef.current = remoteTime;
+    const merged = {
+      ...stateCacheRef.current,
+      ...data,
+      updatedAt: remoteTime
+    };
+    stateCacheRef.current = merged;
+    try {
+      localStorage.setItem('joystay_shared_state_v3', JSON.stringify(merged));
+    } catch {}
+
     if (data.students) setStudents(data.students);
     if (data.rooms) setRooms(data.rooms);
     if (data.feeTransactions) setFeeTransactions(data.feeTransactions);
@@ -96,71 +157,101 @@ export const HostelProvider = ({ children, appRole = 'student' }) => {
     if (data.skippedMeals) setSkippedMeals(data.skippedMeals);
   };
 
-  // Push partial state updates to Backend API
+  // Push state updates to Backend API, localStorage, and BroadcastChannel
   const syncToBackend = async (partialUpdate) => {
+    const now = Date.now();
+    lastUpdatedAtRef.current = now;
+    const nextFullState = {
+      ...stateCacheRef.current,
+      ...partialUpdate,
+      updatedAt: now
+    };
+    stateCacheRef.current = nextFullState;
+
+    try {
+      localStorage.setItem('joystay_shared_state_v3', JSON.stringify(nextFullState));
+    } catch {}
+
+    try {
+      if (broadcastChannelRef.current) {
+        broadcastChannelRef.current.postMessage(nextFullState);
+      }
+    } catch {}
+
     try {
       const res = await fetch(`${API_BASE}/api/state`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(partialUpdate)
+        body: JSON.stringify(nextFullState)
       });
       if (res.ok) {
         setBackendConnected(true);
       }
     } catch (err) {
-      setBackendConnected(false);
+      // Keep UI steady without flickering on transient network hiccups
     }
   };
 
-  // Connect to Shared Backend via Server-Sent Events (SSE) + initial fetch
+  // Connect to Shared Backend via BroadcastChannel + SSE (local) + steady HTTP sync (cloud)
   useEffect(() => {
     let eventSource = null;
     let retryTimer = null;
+    const isServerlessHost = window.location.hostname.includes('vercel.app');
 
-    const connectSSE = () => {
+    if (typeof BroadcastChannel !== 'undefined') {
+      const bc = new BroadcastChannel('joystay_live_sync_v3');
+      bc.onmessage = (ev) => {
+        if (ev.data) {
+          applyRemoteState(ev.data);
+        }
+      };
+      broadcastChannelRef.current = bc;
+    }
+
+    const fetchLatestState = () => {
       fetch(`${API_BASE}/api/state`)
-        .then(r => r.json())
+        .then(r => (r.ok ? r.json() : null))
         .then(data => {
-          applyRemoteState(data);
-          setBackendConnected(true);
+          if (data) {
+            applyRemoteState(data);
+            setBackendConnected(true);
+          }
         })
-        .catch(() => setBackendConnected(false));
-
-      eventSource = new EventSource(`${API_BASE}/api/events`);
-      eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          applyRemoteState(data);
-          setBackendConnected(true);
-        } catch (e) {}
-      };
-      eventSource.onerror = () => {
-        setBackendConnected(false);
-        eventSource.close();
-        retryTimer = setTimeout(connectSSE, 3000);
-      };
+        .catch(() => {});
     };
 
-    connectSSE();
+    fetchLatestState();
 
-    // Periodic background sync for serverless environments (e.g., Vercel)
+    // Only open persistent EventSource on long-running Node servers (skip on Vercel serverless to prevent SSE reconnect flicker)
+    if (!isServerlessHost) {
+      const connectSSE = () => {
+        eventSource = new EventSource(`${API_BASE}/api/events`);
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            applyRemoteState(data);
+            setBackendConnected(true);
+          } catch (e) {}
+        };
+        eventSource.onerror = () => {
+          eventSource.close();
+          retryTimer = setTimeout(connectSSE, 5000);
+        };
+      };
+      connectSSE();
+    }
+
+    // Smooth background sync every 4 seconds when tab is visible
     const pollInterval = setInterval(() => {
       if (document.visibilityState === 'visible') {
-        fetch(`${API_BASE}/api/state`)
-          .then(r => (r.ok ? r.json() : null))
-          .then(data => {
-            if (data) {
-              applyRemoteState(data);
-              setBackendConnected(true);
-            }
-          })
-          .catch(() => {});
+        fetchLatestState();
       }
-    }, 3500);
+    }, 4000);
 
     return () => {
       if (eventSource) eventSource.close();
       if (retryTimer) clearTimeout(retryTimer);
+      if (broadcastChannelRef.current) broadcastChannelRef.current.close();
       clearInterval(pollInterval);
     };
   }, []);
@@ -778,7 +869,7 @@ export const HostelProvider = ({ children, appRole = 'student' }) => {
       const res = await fetch(`${API_BASE}/api/reset`, { method: 'POST' });
       if (res.ok) {
         const data = await res.json();
-        applyRemoteState(data.state);
+        applyRemoteState(data.state, true);
       }
     } catch (e) {}
     addToast(`Shared database restored to initial demo state.`, 'info', 'Data Reset');

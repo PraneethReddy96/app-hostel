@@ -159,8 +159,19 @@ export const ComplaintResolutionView = () => {
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Room {ticket.room}</div>
                 </td>
                 <td>
-                  <div style={{ fontWeight: 600, fontSize: '0.8rem' }}>{ticket.title}</div>
-                  <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>{ticket.category} • {ticket.reportedAt}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    {ticket.photo && (
+                      <img
+                        src={ticket.photo}
+                        alt="Evidence"
+                        style={{ width: '40px', height: '32px', objectFit: 'cover', borderRadius: 'var(--radius-xs)', border: '1px solid var(--border-color)', flexShrink: 0 }}
+                      />
+                    )}
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: '0.8rem' }}>{ticket.title}</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>{ticket.category} • {ticket.reportedAt}</div>
+                    </div>
+                  </div>
                 </td>
                 <td>
                   <span className={`badge ${
@@ -224,6 +235,15 @@ export const ComplaintResolutionView = () => {
                 <div><strong>Resident:</strong> {activeTicket.studentName} (Room {activeTicket.room})</div>
                 <div><strong>Category:</strong> {activeTicket.category} • Priority: {activeTicket.urgency}</div>
                 <div style={{ marginTop: '4px', color: 'var(--text-main)' }}>"{activeTicket.description}"</div>
+                {activeTicket.photo && (
+                  <div style={{ marginTop: '0.6rem' }}>
+                    <img
+                      src={activeTicket.photo}
+                      alt="Attached Evidence"
+                      style={{ maxWidth: '100%', maxHeight: '160px', objectFit: 'cover', borderRadius: 'var(--radius-xs)', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="form-group">

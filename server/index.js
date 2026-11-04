@@ -129,7 +129,12 @@ const handleApiRequest = (req, res, url) => {
     req.on('end', () => {
       try {
         const updates = JSON.parse(body || '{}');
-        dbState = { ...dbState, ...updates };
+        const incomingTime = Number(updates.updatedAt) || Date.now();
+        dbState = {
+          ...dbState,
+          ...updates,
+          updatedAt: Math.max(Number(dbState.updatedAt || 0), incomingTime, Date.now())
+        };
         saveDatabaseState(dbState, 'PORTAL_SYNC');
         broadcastUpdate();
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -143,7 +148,7 @@ const handleApiRequest = (req, res, url) => {
   }
 
   if (req.method === 'POST' && url.pathname === '/api/reset') {
-    dbState = getDefaultCollections();
+    dbState = { ...getDefaultCollections(), updatedAt: Date.now() };
     saveDatabaseState(dbState, 'FACTORY_RESET');
     broadcastUpdate();
     res.writeHead(200, { 'Content-Type': 'application/json' });

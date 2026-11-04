@@ -18,10 +18,11 @@ import {
   initialHostelSettings
 } from '../src/data/mockData.js';
 
-const TMP_FILE = path.join(os.tmpdir(), 'joystay_cloud_state.json');
+const TMP_FILE = path.join(os.tmpdir(), 'joystay_cloud_state_v3.json');
 
 function getDefaultState() {
   return {
+    updatedAt: 0,
     students: initialStudents,
     rooms: initialRooms,
     feeTransactions: initialFeeTransactions,
@@ -95,7 +96,12 @@ export default async function handler(req, res) {
   // 3. POST / PATCH /api/state
   if ((req.method === 'POST' || req.method === 'PATCH') && url.pathname.endsWith('/state')) {
     const updates = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-    state = { ...state, ...updates };
+    const incomingTime = Number(updates.updatedAt) || Date.now();
+    state = {
+      ...state,
+      ...updates,
+      updatedAt: Math.max(Number(state.updatedAt || 0), incomingTime, Date.now())
+    };
     saveCloudState(state);
     return res.status(200).json({ ok: true, state });
   }
@@ -122,11 +128,10 @@ export default async function handler(req, res) {
 
   // 6. POST /api/reset
   if (req.method === 'POST' && url.pathname.endsWith('/reset')) {
-    state = getDefaultState();
+    state = { ...getDefaultState(), updatedAt: Date.now() };
     saveCloudState(state);
     return res.status(200).json({ ok: true, state });
   }
 
   return res.status(200).json({ status: 'ok', service: 'JoyStay Vercel API' });
 }
-
